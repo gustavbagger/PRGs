@@ -18,9 +18,15 @@ def AdjecencyMatrixSP(mod: int, prim: int) -> Matrix:
     helperArrayAdderSP(mod-2,[mod-2,1,mod-primInv,mod-prim],out)
     return out
 
+def PrintChar(self: Matrix) -> None:
+    print(self.charpoly('x').as_expr())
+    return
+
+Matrix.char = PrintChar 
 
 def main():
-    print(AdjecencyMatrixSP(13,2))
+    M= AdjecencyMatrixSP(13,3)
+    M.char()
     return
 main()
 
