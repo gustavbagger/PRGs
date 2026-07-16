@@ -18,6 +18,20 @@ def AdjecencyMatrixSP(mod: int, prim: int) -> Matrix:
     helperArrayAdderSP(mod-2,[mod-2,1,mod-primInv,mod-prim],out)
     return out
 
+def helperArrayAdderSPModified(row: int, columns: list, matrix: Matrix) -> None:
+    matrix[row,columns[0]]+=1
+    matrix[row,columns[1]]+=1
+    matrix[row,columns[2]]+=1
+    matrix[row,columns[3]]+=1
+    return
+
+def AdjecencyMatrixSPModified(mod: int, prim: int) -> Matrix:
+    out = zeros(mod)
+    primInv = mod_inverse(prim, mod)
+    for i in range(0,mod):
+        helperArrayAdderSPModified(i,[(i-1) % mod,(i+1) % mod,(i*primInv) % mod,(i*prim) % mod],out)
+    return out
+
 def PrintChar(self: Matrix) -> None:
     print(self.charpoly('x').as_expr())
     return
@@ -25,7 +39,7 @@ def PrintChar(self: Matrix) -> None:
 Matrix.char = PrintChar 
 
 def main():
-    M= AdjecencyMatrixSP(13,3)
+    M= AdjecencyMatrixSPModified(13,2)
     M.char()
     return
 main()
