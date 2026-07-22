@@ -1,5 +1,7 @@
 import math as ma
 import numpy as np
+import quads as qu
+
 from sympy import mod_inverse, Matrix, zeros
 
 def helperArrayAdderSP(row: int, columns: list, matrix: Matrix) -> None:
@@ -41,6 +43,7 @@ Matrix.char = PrintChar
 def main():
     M= AdjecencyMatrixSPModified(17,14)
     M.char()
+    qu.QuadTree((0,0),10,10)
     return
 main()
 
