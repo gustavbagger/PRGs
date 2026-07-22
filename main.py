@@ -39,7 +39,7 @@ def PrintChar(self: Matrix) -> None:
 Matrix.char = PrintChar 
 
 def main():
-    M= AdjecencyMatrixSPModified(13,2)
+    M= AdjecencyMatrixSPModified(17,14)
     M.char()
     return
 main()
