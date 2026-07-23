@@ -4,6 +4,59 @@ import quads as qu
 
 from sympy import mod_inverse, Matrix, zeros
 
+class Graph(object):
+
+    def __init__(self, data: dict[int:list] | None = None):
+        if data == None:
+            data = {}
+        self.data = data
+        self.vertexCount = len(data)
+
+    def __str__(self):
+        out = ""
+        for vertex,edges in self.data.items():
+            out += f"{vertex}: {edges}\n"
+        return out.rstrip("\n")
+
+    def addEdge(self,node1:int, node2:int):
+        if self.inGraph(node1) and self.inGraph(node2):
+            self.data[node1].append(node2)
+            self.data[node2].append(node1)
+        
+    def addVertex(self,node:int):
+        self.data[node] = []
+        self.vertexCount += 1
+
+    def inGraph(self,node:int):
+        return node in self.data
+
+#avoids computing modular inverse since the edge will be given from b <-> a
+def MakePRG(mod: int, root: int) -> Graph:
+    PRG = Graph()
+    #add vertecies
+    for vertex in range(mod):
+        PRG.addVertex(vertex)
+    #insert edges to existing verticies
+    for vertex in range(mod):
+        Tv = (vertex+1) % mod
+        Dv = (vertex*root) % mod
+        PRG.addEdge(vertex,Tv)
+        PRG.addEdge(vertex,Dv)
+    return PRG
+
+
+def main(): 
+    testGraph = {0:[1,3,2],3:[1,6,9]}
+    print(Graph(testGraph))
+
+    PRG = MakePRG(17,14)
+    print(PRG)
+    return
+main()
+
+
+#depricated:
+"""
 def helperArrayAdderSP(row: int, columns: list, matrix: Matrix) -> None:
     matrix[row,columns[0]-1]+=1
     matrix[row,columns[1]-1]+=1
@@ -40,16 +93,7 @@ def PrintChar(self: Matrix) -> None:
 
 Matrix.char = PrintChar 
 
-def main():
-    M= AdjecencyMatrixSPModified(17,14)
-    M.char()
-    qu.QuadTree((0,0),10,10)
-    return
-main()
 
-
-#depricated:
-"""
 def AdjecencyMatrixNaive(mod: int, prim: int) -> list:
     out = list()
     primInv = mod_inverse(prim,mod)
