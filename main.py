@@ -1,9 +1,22 @@
 import math as ma
 import numpy as np
-import quads as qu
 
-from sympy import mod_inverse, Matrix, zeros
+class Tree(object):
 
+    def __init__(self, data: list[set] | None = None):
+        if data == None:
+            data = []
+        self.data = data
+
+    def __str__(self) -> str:
+        out = ""
+        for levelSet in self.data:
+            out += f"{levelSet}\n"
+        return out.rstrip("\n")
+    def diameter(self) -> int:
+        return len(self.data)-1
+
+    
 class Graph(object):
 
     def __init__(self, data: dict[int:list] | None = None):
@@ -12,7 +25,7 @@ class Graph(object):
         self.data = data
         self.vertexCount = len(data)
 
-    def __str__(self):
+    def __str__(self) -> str:
         out = ""
         for vertex,edges in self.data.items():
             out += f"{vertex}: {edges}\n"
@@ -27,8 +40,39 @@ class Graph(object):
         self.data[node] = []
         self.vertexCount += 1
 
-    def inGraph(self,node:int):
+    def inGraph(self,node:int) -> bool:
         return node in self.data
+
+    def spanningTree(self, root:int) -> Tree:
+        seenSet = {root}
+        seen = 1
+        lastLevel = {root}
+        tree = [lastLevel]
+        while seen < self.vertexCount:
+            thisLevel = set()
+            for vertex in lastLevel:
+                for neighbour in self.data[vertex]:
+                    if neighbour not in seenSet:
+                        thisLevel.add(neighbour)
+                        seenSet.add(neighbour)
+                        seen+=1
+            tree.append(thisLevel)
+            lastLevel = thisLevel
+        return Tree(tree)
+
+    def diameter(self) -> dict:
+        best = 1
+        bestNode = -1
+        for node in self.data.keys():
+            new = self.spanningTree(node).diameter() 
+            if new > best:
+                best = new
+                bestNode = node
+        return {"diameter":best,"Root":bestNode}
+                
+
+
+
 
 #avoids computing modular inverse since the edge will be given from b <-> a
 def MakePRG(mod: int, root: int) -> Graph:
@@ -46,17 +90,21 @@ def MakePRG(mod: int, root: int) -> Graph:
 
 
 def main(): 
-    testGraph = {0:[1,3,2],3:[1,6,9]}
-    print(Graph(testGraph))
-
     PRG = MakePRG(17,14)
-    print(PRG)
+    #print(PRG)
+    print(PRG.spanningTree(4))
+    print(PRG.diameter())
     return
 main()
 
 
 #depricated:
 """
+import quads as qu
+
+from sympy import mod_inverse, Matrix, zeros
+
+
 def helperArrayAdderSP(row: int, columns: list, matrix: Matrix) -> None:
     matrix[row,columns[0]-1]+=1
     matrix[row,columns[1]-1]+=1
