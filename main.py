@@ -1,3 +1,43 @@
+import numpy as np
+from numpy import typing as npt
+
+def random_vector(dimension: int) -> npt.NDArray[np.float64]:
+    rng = np.random.default_rng()
+    return rng.random(dimension)
+
+def power_method(
+    A: npt.NDArray[np.float64],
+    num_iterations: int,
+) -> npt.NDArray[np.float64]:
+    if A.shape[0] != A.shape[1]:
+        raise ValueError("A must be a square matrix.")
+    
+    # Choose a random initial vector to reduce the chance
+    # that it is orthogonal to the dominant eigenvector.
+    b_k = random_vector(A.shape[1])
+
+    # Normalize the initial vector.
+    b_k /= np.linalg.norm(b_k)
+
+    for _ in range(num_iterations):
+        # Multiply by the matrix.
+        b_k1 = A @ b_k
+
+        # Compute the length of the new vector.
+        b_k1_norm = np.linalg.norm(b_k1)
+
+        # Stop if the new vector is within machine precision of 0.
+        if np.isclose(b_k1_norm, 0.0):
+            raise ValueError("Power method produced the zero vector.")
+
+        # Normalize the vector for the next iteration.
+        b_k = b_k1 / b_k1_norm
+    ray = np.dot(b_k,A @ b_k)/np.linalg.norm(b_k)
+
+    # Return the approximate dominant eigenvector.
+    return abs(ray)
+
+
 class Tree(object):
     def __init__(self, data: list[set] | None = None):
         if data == None:
@@ -66,8 +106,42 @@ class Graph(object):
                 best = new
                 bestNode = node
         return {"diameter":best,"Root":bestNode}
+    def adjecencyMatrix0(self) -> np.array:
+        array = []
+        try:
+            for node in self.data.keys():
+                row = np.zeros(self.vertexCount)
+                for index in self.data[node]:
+                    row[index] += 1
+                array.append(row)
+            return np.array(array)
+        except IndexError:
+            print("Probably tried using non-PRG0 graph")
+    def adjecencyMatrix(self) -> np.array:
+        array = []
+        try:
+            for node in self.data.keys():
+                row = np.zeros(self.vertexCount)
+                for index in self.data[node]:
+                    row[index-1] += 1
+                array.append(row)
+            return np.array(array)
+        except IndexError:
+            print("Probably tried using non-PRG graph")
+    #Assumes regularity of graph
+    def regularityDegree(self) -> int:
+        for node in self.data.keys():
+            return len(self.data[node])
+    def laplacian(self) -> np.array:
+        return self.regularityDegree() * np.identity(self.vertexCount) - self.adjecencyMatrix()
+
+#    def spectralRadius(self,iterations: int = 10) -> np.float64:
+#        return power_method(self.laplacian(),iterations)
+
+        
+
                 
-#avoids computing modular inverse since the edge will be given from b <-> a
+#adds vertex at 0
 def MakePRG0(mod: int, root: int) -> Graph:
     PRG = Graph()
     #add vertecies
@@ -93,6 +167,7 @@ def MakePRG(mod: int, root: int) -> Graph:
         Dv = (vertex*root) % mod
         PRG.addEdge(vertex,Tv)
         PRG.addEdge(vertex,Dv)
+    #removes the extra vertex at 0 and associated edges before connecting 1 and mod-1.
     PRG.remEdge(0,1)
     PRG.remEdge(0,mod-1)
     PRG.remVertex(0)
@@ -103,6 +178,7 @@ def main():
     PRG = MakePRG(17,3)
     #print(PRG)
     print(PRG.spanningTree(4))
-    print(PRG.diameter())
+    print(PRG.laplacian())
+    print(PRG.regularityDegree())
     return
 main()
